@@ -1,0 +1,23 @@
+{
+  "_comment": "FeatherFlow config example (~/.featherflow/config.json). The command must point to this project's own .venv Python, not the system Python or FeatherFlow's Python.",
+  "tools": {
+    "mcpServers": {
+      "mofchecker": {
+        "command": "/path/to/mofchecker/.venv/bin/python",
+        "args": ["-m", "mofchecker.mcp_server"],
+        "toolTimeout": 120
+      },
+      "zeopp": {
+        "url": "http://localhost:9877/mcp",
+        "headers": {
+          "Authorization": "Bearer <MCP_AUTH_TOKEN>"
+        },
+        "toolTimeout": 120
+      }
+    }
+  },
+  "channels": {
+    "sendToolHints": true,
+    "sendProgress": true
+  }
+}

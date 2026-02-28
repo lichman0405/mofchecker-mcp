@@ -8,7 +8,7 @@ from typing import Iterable, List, Union
 
 import networkx as nx
 from ase import Atoms
-from backports.cached_property import cached_property
+from functools import cached_property
 from pymatgen.analysis.graphs import ConnectedSite, StructureGraph
 from pymatgen.core import IStructure, Structure
 from pymatgen.io.ase import AseAtomsAdaptor
@@ -46,7 +46,6 @@ from .checks.local_structure import (
 )
 from .checks.oms import MOFOMS
 from .checks.utils.get_indices import get_c_indices, get_h_indices, get_metal_indices, get_n_indices
-from .checks.zeopp import PorosityCheck
 from .symmetry import get_spacegroup_symbol_and_number, get_symmetry_hash
 from .utils import _check_if_ordered
 from .version import get_version
@@ -78,7 +77,6 @@ DESCRIPTORS = [
     "has_metal",
     "has_lone_molecule",
     "has_high_charges",
-    "is_porous",
     "has_suspicicious_terminal_oxo",
     "has_undercoordinated_alkali_alkaline",
     "has_geometrically_exposed_metal",
@@ -165,7 +163,6 @@ class MOFChecker:
             "no_geometrically_exposed_metal": GeometricallyExposedMetal.from_mofchecker(self),
             "no_floating_molecule": FloatingSolventCheck.from_mofchecker(self),
             "no_high_charges": ChargeCheck(self.structure),
-            "is_porous": PorosityCheck(self.structure),
             "no_oms": MOFOMS.from_mofchecker(self),
             "no_false_terminal_oxo": FalseOxoCheck.from_mofchecker(self),
             "has_3d_connected_graph": IsThreeDimensional.from_mofchecker(self),
@@ -424,17 +421,6 @@ class MOFChecker:
     def has_geometrically_exposed_metal(self) -> bool:
         """Check if there is a metal that is geometrically exposed."""
         return not self.checks["no_geometrically_exposed_metal"].is_ok
-
-    @property
-    def is_porous(self) -> Union[bool, None]:
-        """Return True if the MOF is porous according to the CoRE-MOF definition.
-
-        Returns None if the check could not be run successfully.
-
-        Returns:
-            Union[bool, None]: True if porous, False if not porous, None if check could not be run.
-        """
-        return self.checks["is_porous"].is_ok
 
     @property
     def has_high_charges(self) -> Union[bool, None]:

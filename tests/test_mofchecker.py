@@ -187,8 +187,3 @@ def test_chargecheck():
         Structure.from_file(os.path.join(THIS_DIR, "test_files", "AMUFIZ_clean.cif"))
     )
     assert mofchecker.has_high_charges is False
-
-
-def test_is_porous(get_cn5_paddlewheel_structure):
-    mc = MOFChecker(get_cn5_paddlewheel_structure)
-    assert mc.is_porous is True

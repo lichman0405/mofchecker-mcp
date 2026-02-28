@@ -7,7 +7,7 @@ import warnings
 from types import FunctionType
 
 import pymatgen
-from backports.cached_property import cached_property
+from functools import cached_property
 
 from .types import PathType
 

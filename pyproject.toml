@@ -1,17 +1,115 @@
-# See https://setuptools.readthedocs.io/en/latest/build_meta.html
 [build-system]
-requires = [
-    "setuptools >= 35.0.2",
-]
+requires = ["setuptools>=70", "wheel"]
 build-backend = "setuptools.build_meta"
 
-[tool.black]
-line-length = 100
-target-version = ["py37", "py38", "py39"]
+[project]
+name = "mofchecker"
+version = "0.9.7"
+description = "Perform sanity checks for MOFs."
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "Kevin Jablonka", email = "mail@kjablonka.com" }]
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Chemistry",
+]
+dependencies = [
+    "networkx>=2.5",
+    "ase",
+    "pyyaml",
+    "pyeqeq",
+    "structuregraph_helpers",
+    "element_coder",
+    "typing_extensions",
+    "libconeangle",
+    "mcp>=1.0.0",
+]
 
-[tool.isort]
-profile = "black"
-multi_line_output = 3
-line_length = 100
-include_trailing_comma = true
-reverse_relative = true
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "ruff",
+    "mypy",
+]
+
+[project.scripts]
+mofchecker-mcp = "mofchecker.mcp_server:main"
+
+[project.urls]
+Homepage = "https://github.com/lamalab-org/mofchecker"
+"Bug Tracker" = "https://github.com/lamalab-org/mofchecker/issues"
+
+# ---------------------------------------------------------------------------
+# Setuptools
+# ---------------------------------------------------------------------------
+
+[tool.setuptools.packages.find]
+where = ["."]
+exclude = ["tests*"]
+
+[tool.setuptools.package-data]
+"mofchecker.database" = ["*.pkl"]
+
+# ---------------------------------------------------------------------------
+# Ruff (replaces black + isort + flake8)
+# ---------------------------------------------------------------------------
+
+[tool.ruff]
+line-length = 120
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+ignore = ["E203"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*.py" = ["D103", "N806", "S101"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+# ---------------------------------------------------------------------------
+# Pytest
+# ---------------------------------------------------------------------------
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--tb=short"
+
+# ---------------------------------------------------------------------------
+# Coverage
+# ---------------------------------------------------------------------------
+
+[tool.coverage.run]
+branch = true
+source = ["mofchecker"]
+omit = ["tests/*"]
+
+[tool.coverage.report]
+show_missing = true
+exclude_lines = [
+    "pragma: no cover",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "def __str__",
+    "def __repr__",
+]
+
+# ---------------------------------------------------------------------------
+# Mypy
+# ---------------------------------------------------------------------------
+
+[tool.mypy]
+ignore_missing_imports = true
+python_version = "3.9"

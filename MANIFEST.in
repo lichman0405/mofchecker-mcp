@@ -1,4 +1,0 @@
-include LICENSE
-include MANIFEST.in
-include src/mofchecker/version.py
-include src/mofchecker/database/*.pkl

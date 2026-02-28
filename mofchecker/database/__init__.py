@@ -5,7 +5,7 @@
 import os
 from typing import List
 
-from backports.cached_property import cached_property
+from functools import cached_property
 
 from mofchecker.utils import read_pickle
 

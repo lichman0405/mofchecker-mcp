@@ -1,121 +1,183 @@
-<!--
-<p align="center">
-  <img src="https://github.com/kjappelbaum/mofchecker/raw/main/docs/source/figures/logo.png" height="300">
-</p> -->
-<h1 align="center">
-    mofchecker
-</h1>
-<p align="center">
-    <a href="https://github.com/kjappelbaum/mofchecker/actions?query=workflow%3Apython_package">
-        <img alt="Tests" src="https://github.com/kjappelbaum/mofchecker/actions/workflows/python-package.yml/badge.svg" />
-    </a>
-    <a href="https://pypi.org/project/mofchecker">
-        <img alt="PyPI" src="https://img.shields.io/pypi/v/mofchecker" />
-    </a>
-    <a href="https://pypi.org/project/mofchecker">
-        <img alt="PyPI - Python Version" src="https://img.shields.io/pypi/pyversions/mofchecker" />
-    </a>
-    <a href="https://github.com/kjappelbaum/mofchecker/blob/main/LICENSE">
-        <img alt="PyPI - License" src="https://img.shields.io/pypi/l/mofchecker" />
-    </a>
-    <a href='https://mofchecker.readthedocs.io/en/latest/?badge=latest'>
-        <img src='https://readthedocs.org/projects/mofchecker/badge/?version=latest' alt='Documentation Status' />
-    </a>
-    <a href='https://github.com/psf/black'>
-        <img src='https://img.shields.io/badge/code%20style-black-000000.svg' alt='Code style: black' />
-    </a>
-</p>
+# mofchecker — MCP Edition
 
+> A lean, MCP-enabled repackaging of the outstanding
+> [**mofchecker**](https://github.com/lamalab-org/mofchecker) library by
+> [Kevin Jablonka](https://github.com/kjappelbaum) and the
+> [lamalab-org](https://github.com/lamalab-org) team.
 
-## What does it do?
+## Standing on the shoulders of giants
 
-`mofchecker` performs quick sanity checks on crystal structures of metal-organic frameworks (MOFs).
+The original `mofchecker` is, frankly, one of the most thoughtfully engineered
+tools in computational MOF science. In a field where "sanity check" usually means
+"did it crash?", Kevin and collaborators built a rigorous, composable framework
+that catches everything from overlapping atoms to suspiciously over-charged
+fragments — all in a clean, pythonic API that actually makes sense to use. The
+graph-hash deduplication alone is worth the price of admission. If you are doing
+any serious high-throughput MOF screening, the original library is essential
+reading; this fork would not exist without its solid foundation.
 
-Try the live web app at https://github.com/kjappelbaum/webmofchecker !
+**Original repository:** https://github.com/lamalab-org/mofchecker  
+**Original paper:** Jablonka et al., *Digital Discovery*, 2023.
 
-Sanity checks:
+---
 
-- Presence of at least one metal, carbon and hydrogen atom
-- Overlapping atoms (distance between atoms above covalent *radius* of the smaller atom)
-- Overvalent carbons (coordination number above 4), nitrogens (heuristics), or hydrogens (CN > 1)
-- Missing hydrogen on common coordination geometries of C and N (heuristics)
-- Atoms with excessive [EQeq partial charge](https://pubs.acs.org/doi/10.1021/jz3008485)
+## What is this fork?
 
-Basic analysis:
-- Presence of floating atoms or molecules
-- Hash of the atomic structure graph (useful to identify duplicates)
+This edition slims the original down to a focused MCP (Model Context Protocol)
+server so that AI agents — in particular those built with
+[featherflow](https://github.com/lichman0405/featherflow) — can call structure
+checks as tools over stdio.
 
-The sanity checks can be used to weed out really unreasonable structures (nothing too fancy).
-The code is a rewrite of similar tools in [structure_comp](https://github.com/kjappelbaum/structure_comp).
+Changes relative to upstream:
 
-## 🚀 Installation
+| Change | Reason |
+|---|---|
+| Removed `PorosityCheck` / `is_porous` | Porosity analysis is provided by the separate [`zeopp-backend`](https://github.com/lichman0405/zeopp-backend) MCP service |
+| Added `mcp_server.py` with 8 MCP tools | Exposes every check category as an individual callable tool |
+| Migrated to `pyproject.toml` (PEP 621) | Modern packaging, single configuration file |
+| `python_requires >= 3.9`, dropped `backports.cached-property` | 3.8 is EOL; use `functools.cached_property` from stdlib |
+| Replaced `black + isort + flake8` with `ruff` | Single, faster linter/formatter |
 
-Development version:
+Porosity checks are intentionally **not** included here. Point your agent at
+`zeopp-backend` (`http://localhost:9877/mcp`) for those.
 
-```bash
-pip install git+https://github.com/kjappelbaum/mofchecker.git
-```
+---
 
-Latest stable release
+## Installation
+
+> **Important — virtual environment isolation**
+> Each MCP server must run in its own virtual environment. The `command` in
+> your FeatherFlow config must point to **this project's `.venv/bin/python`**,
+> not FeatherFlow's Python or the system Python.
+
+### 0. Install uv (one-time, recommended)
 
 ```bash
-pip install mofchecker
+# Linux / macOS
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-Note that you need to install [zeopp](https://anaconda.org/conda-forge/zeopp-lsmo) if you want to use the porosity features.
+`uv` manages Python versions automatically — no need to install Python 3.9+ manually.
+
+### 1. Clone and create a dedicated environment
 
 ```bash
-conda install -c conda-forge zeopp-lsmo
+git clone https://github.com/lamalab-org/mofchecker.git
+cd mofchecker
+uv venv .venv --python 3.12        # creates .venv/ inside the project
+source .venv/bin/activate          # Linux/macOS
+# .venv\Scripts\Activate.ps1      # Windows PowerShell
 ```
-    
 
-
-A web app is currently being developed [in another repository](https://github.com/kjappelbaum/webmofchecker) and deployed on [MatCloud](http://mofchecker.matcloud.xyz/).
-
-## 💪 Getting Started
-
-### Command line interface
+### 2. Install
 
 ```bash
-mofchecker --help # list options
-mofchecker structure1.cif structure2.cif  # prints JSON output
-mofchecker -d has_metal -d has_atomic_overlaps *.cif  # compute only selected descriptors
+uv pip install -e .
 ```
 
-### In Python
+### 3. Verify
+
+```bash
+python -m mofchecker.mcp_server --help
+```
+
+---
+
+## MCP server
+
+The primary use-case of this fork is running `mofchecker` as an MCP tool server
+for AI agents.
+
+### Start the server
+
+```bash
+# Activate the project's own venv first
+source /path/to/mofchecker/.venv/bin/activate
+
+python -m mofchecker.mcp_server   # stdio transport (for featherflow / Claude Desktop)
+```
+
+### Available tools
+
+| Tool | Description |
+|---|---|
+| `list_available_descriptors` | Returns the full list of descriptor keys |
+| `get_basic_info` | Formula, cell volume, density, space group, dimensionality |
+| `check_global_structure` | Floating atoms/solvent, graph connectivity |
+| `check_atomic_overlaps` | Overlapping atom pairs |
+| `check_coordination` | Over/under-coordinated C, N, H and rare-earth/alkaline metals |
+| `check_geometry` | Geometrically exposed metals (open metal sites) |
+| `check_charges` | EQeq partial-charge sanity (overcharged atoms) |
+| `check_mof_full` | Runs all checks and returns the complete descriptor dict |
+
+Every tool accepts either a `cif_path` (absolute path on the server filesystem)
+or `cif_content` (raw CIF text) — whichever is more convenient for the caller.
+
+### featherflow integration
+
+Edit `~/.featherflow/config.json`. The `command` must be the **absolute path** to
+this project's `.venv/bin/python` — not `mofchecker-mcp` on `$PATH` and not
+FeatherFlow's own Python.
+
+```json
+{
+  "tools": {
+    "mcpServers": {
+      "mofchecker": {
+        "command": "/path/to/mofchecker/.venv/bin/python",
+        "args": ["-m", "mofchecker.mcp_server"],
+        "toolTimeout": 120
+      },
+      "zeopp": {
+        "url": "http://localhost:9877/mcp",
+        "toolTimeout": 120
+      }
+    }
+  },
+  "channels": {
+    "sendToolHints": true,
+    "sendProgress": true
+  }
+}
+```
+
+On Windows replace the path with `C:/path/to/mofchecker/.venv/Scripts/python.exe`.
+
+See [`mcp_config_example.json`](mcp_config_example.json) for a ready-to-use snippet.
+
+---
+
+## Python API
+
+The library is still fully usable as a regular Python package:
 
 ```python
 from mofchecker import MOFChecker
-mofchecker = MOFChecker.from_cif(<path_to_cif>)
-# or: MOFChecker(structure=my_pymatgen_structure)
 
-# Test for OMS
-mofchecker.has_oms
+checker = MOFChecker.from_cif("path/to/structure.cif")
 
-# Test for clashing atoms
-mofchecker.has_atomic_overlaps
+# Individual checks
+print(checker.has_atomic_overlaps)     # bool
+print(checker.has_oms)                 # bool
+print(checker.has_overcoordinated_c)   # bool
 
-# Run basic checks on a list of cif paths (sample_structures)
-results = []
-
-for structure in sample_structures:
-    mofchecker = MOFChecker.from_cif(structure)
-    results.append(mofchecker.get_mof_descriptors())
+# All descriptors at once
+descriptors = checker.get_mof_descriptors()
 ```
 
+---
 
-## 👐 Contributing
+## Development
 
-Contributions, whether filing an issue, making a pull request, or forking, are appreciated. See
-[CONTRIBUTING.rst](https://github.com/kjappelbaum/mofchecker/blob/master/CONTRIBUTING.rst) for more information on getting involved.
+```bash
+uv pip install -e ".[dev]"
+pytest                            # run tests
+ruff check mofchecker/ tests/            # lint
+ruff format mofchecker/ tests/           # format
+```
 
+---
 
-### ⚖️ License
+## License
 
-The code in this package is licensed under the MIT License.
-
-
-### 💰 Funding
-
-The research was supported by the European Research Council (ERC) under the European Union’s Horizon 2020 research and innovation programme ([grant agreement 666983, MaGic](https://cordis.europa.eu/project/id/666983)), by the [NCCR-MARVEL](https://www.nccr-marvel.ch/), funded by the Swiss National Science Foundation, and by the Swiss National Science Foundation (SNSF) under Grant 200021_172759.
-
+MIT — same as the original project.
