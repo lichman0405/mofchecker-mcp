@@ -9,7 +9,7 @@ description = "Perform sanity checks for MOFs."
 readme = "README.md"
 license = { file = "LICENSE" }
 authors = [{ name = "Kevin Jablonka", email = "mail@kjablonka.com" }]
-requires-python = ">=3.9"
+requires-python = ">=3.9,<3.12"
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Environment :: Console",
@@ -20,13 +20,13 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Chemistry",
 ]
 dependencies = [
     "networkx>=2.5",
     "ase",
     "pyyaml",
+    "pyeqeq",
     "structuregraph_helpers",
     "element_coder",
     "typing_extensions",
@@ -35,9 +35,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-charges = [
-    "pyeqeq",   # C extension — requires Python <3.12 and a C++ compiler
-]
 dev = [
     "pytest",
     "pytest-cov",
