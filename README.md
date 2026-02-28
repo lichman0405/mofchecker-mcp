@@ -75,7 +75,8 @@ source .venv/bin/activate          # Linux/macOS
 uv pip install -e .
 ```
 
-> `pyeqeq` (EQeq charge check) requires Python < 3.11 and pybind11 < 2.7.
+> `pyeqeq` (EQeq charge check) requires Python < 3.11 and pybind11 >= 2.9 (older versions
+> have a missing `<cstdint>` include that breaks on GCC 10+).
 > Both constraints are handled automatically via `pyproject.toml` — no manual steps needed.
 
 ### 3. Verify
