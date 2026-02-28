@@ -118,7 +118,7 @@ python_version = "3.9"
 # ---------------------------------------------------------------------------
 
 [tool.uv]
-# pyeqeq uses pybind11 2.6.x API; build it without isolation so it picks up
-# the pinned pybind11>=2.6,<2.7 from the environment instead of auto-pulling
-# the latest incompatible version.
 no-build-isolation-package = ["pyeqeq"]
+
+[tool.uv.extra-build-dependencies]
+pyeqeq = ["setuptools"]
