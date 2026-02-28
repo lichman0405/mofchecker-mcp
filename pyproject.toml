@@ -25,6 +25,7 @@ dependencies = [
     "networkx>=2.5",
     "ase",
     "pyyaml",
+    "setuptools",
     "pybind11>=2.6,<2.7",
     "pyeqeq",
     "structuregraph_helpers",
@@ -119,6 +120,3 @@ python_version = "3.9"
 
 [tool.uv]
 no-build-isolation-package = ["pyeqeq"]
-
-[tool.uv.extra-build-dependencies]
-pyeqeq = ["setuptools"]
