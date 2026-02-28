@@ -25,6 +25,7 @@ dependencies = [
     "networkx>=2.5",
     "ase",
     "pyyaml",
+    "pybind11>=2.6,<2.7",
     "pyeqeq",
     "structuregraph_helpers",
     "element_coder",
@@ -111,3 +112,13 @@ exclude_lines = [
 [tool.mypy]
 ignore_missing_imports = true
 python_version = "3.9"
+
+# ---------------------------------------------------------------------------
+# uv — build configuration
+# ---------------------------------------------------------------------------
+
+[tool.uv]
+# pyeqeq uses pybind11 2.6.x API; build it without isolation so it picks up
+# the pinned pybind11>=2.6,<2.7 from the environment instead of auto-pulling
+# the latest incompatible version.
+no-build-isolation-package = ["pyeqeq"]
