@@ -39,7 +39,7 @@ from mofchecker import DESCRIPTORS, MOFChecker
 
 mcp = FastMCP(
     "mofchecker",
-    description=(
+    instructions=(
         "MOF structure sanity checker. Performs chemical and geometric checks "
         "on Metal-Organic Frameworks from CIF files. Checks include: atomic overlaps, "
         "coordination chemistry, charge analysis, global connectivity, and more."
