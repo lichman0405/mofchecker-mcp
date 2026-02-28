@@ -75,6 +75,15 @@ source .venv/bin/activate          # Linux/macOS
 uv pip install -e .
 ```
 
+EQeq charge checks require an optional C extension that only builds on Python ≤ 3.11.
+To enable them:
+
+```bash
+uv pip install -e ".[charges]"   # Python 3.9 – 3.11 only
+```
+
+On Python 3.12+ the charge check is silently skipped (returns `null` in the MCP response).
+
 ### 3. Verify
 
 ```bash

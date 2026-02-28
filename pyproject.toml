@@ -27,7 +27,6 @@ dependencies = [
     "networkx>=2.5",
     "ase",
     "pyyaml",
-    "pyeqeq",
     "structuregraph_helpers",
     "element_coder",
     "typing_extensions",
@@ -36,6 +35,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+charges = [
+    "pyeqeq",   # C extension — requires Python <3.12 and a C++ compiler
+]
 dev = [
     "pytest",
     "pytest-cov",
