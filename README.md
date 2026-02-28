@@ -64,7 +64,7 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 ```bash
 git clone https://github.com/lichman0405/mofchecker-mcp.git
 cd mofchecker-mcp
-uv venv .venv --python 3.11        # pyeqeq requires Python <3.12
+uv venv .venv --python 3.10        # pyeqeq requires Python <3.11
 source .venv/bin/activate          # Linux/macOS
 # .venv\Scripts\Activate.ps1      # Windows PowerShell
 ```
@@ -75,9 +75,9 @@ source .venv/bin/activate          # Linux/macOS
 uv pip install -e .
 ```
 
-> **Note:** Python 3.12+ is not supported. `pyeqeq` (EQeq charge check) requires Python < 3.12
-> because it uses a pybind11 C extension that accesses Python internals changed in 3.12.
-> Use Python 3.11 (recommended) or 3.10.
+> **Note:** Python 3.11+ is not supported. `pyeqeq` (EQeq charge check) requires Python < 3.11
+> because it uses a pybind11 C extension that accesses `PyThreadState->frame` removed in 3.11.
+> Use Python 3.10 (recommended) or 3.9.
 
 ### 3. Verify
 
