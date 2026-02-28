@@ -31,7 +31,20 @@ from typing import Optional
 
 from mcp.server.fastmcp import FastMCP
 
-from mofchecker import DESCRIPTORS, MOFChecker
+# Heavy dependencies (pymatgen, ase …) are loaded lazily on first tool call
+# so the MCP initialize handshake can complete before the import finishes.
+_MOFChecker = None
+_DESCRIPTORS = None
+
+
+def _lazy_import() -> None:
+    """Import mofchecker on first use to avoid blocking MCP startup."""
+    global _MOFChecker, _DESCRIPTORS
+    if _MOFChecker is None:
+        from mofchecker import DESCRIPTORS as _D
+        from mofchecker import MOFChecker as _MC
+        _MOFChecker = _MC
+        _DESCRIPTORS = _D
 
 # ---------------------------------------------------------------------------
 # Server instance
@@ -55,10 +68,11 @@ def _load_checker(
     cif_path: Optional[str],
     cif_content: Optional[str],
     primitive: bool = False,
-) -> MOFChecker:
+):
     """Instantiate MOFChecker from a file path or raw CIF text content."""
+    _lazy_import()
     if cif_path:
-        return MOFChecker.from_cif(cif_path, primitive=primitive)
+        return _MOFChecker.from_cif(cif_path, primitive=primitive)
     if cif_content:
         with tempfile.NamedTemporaryFile(
             mode="w", suffix=".cif", delete=False, encoding="utf-8"
@@ -66,7 +80,7 @@ def _load_checker(
             tmp.write(cif_content)
             tmp_path = tmp.name
         try:
-            checker = MOFChecker.from_cif(tmp_path, primitive=primitive)
+            checker = _MOFChecker.from_cif(tmp_path, primitive=primitive)
         finally:
             Path(tmp_path).unlink(missing_ok=True)
         return checker
@@ -103,7 +117,8 @@ def list_available_descriptors() -> str:
     Returns a JSON object with key 'descriptors' containing the full list.
     No CIF file is required.
     """
-    return json.dumps({"descriptors": DESCRIPTORS}, ensure_ascii=False)
+    _lazy_import()
+    return json.dumps({"descriptors": _DESCRIPTORS}, ensure_ascii=False)
 
 
 # ---------------------------------------------------------------------------
