@@ -71,13 +71,21 @@ source .venv/bin/activate          # Linux/macOS
 
 ### 2. Install
 
+`pyeqeq` (the EQeq charge check) has a C++ extension that was written against
+pybind11 2.6.x. Modern pip/uv automatically pulls a newer pybind11 whose API
+changed, causing a compile failure. Work around it with:
+
 ```bash
+# Step 1: install the compatible pybind11 version first
+uv pip install "pybind11==2.6.2"
+
+# Step 2: install pyeqeq without build isolation
+#         (so it uses the pybind11 we just installed, not a fresh download)
+uv pip install --no-build-isolation pyeqeq==0.0.10
+
+# Step 3: install the project normally
 uv pip install -e .
 ```
-
-> **Note:** Python 3.11+ is not supported. `pyeqeq` (EQeq charge check) requires Python < 3.11
-> because it uses a pybind11 C extension that accesses `PyThreadState->frame` removed in 3.11.
-> Use Python 3.10 (recommended) or 3.9.
 
 ### 3. Verify
 
