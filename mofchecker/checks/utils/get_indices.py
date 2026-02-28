@@ -68,7 +68,11 @@ def _get_metal_indices(structure):
 
 
 def _get_rare_earth_indices(structure):
-    return [i for i, site in enumerate(structure) if site.specie.is_rare_earth_metal]
+    # pymatgen renamed is_rare_earth_metal -> is_rare_earth in 2024.x
+    def _is_rare_earth(specie) -> bool:
+        return getattr(specie, "is_rare_earth", None) or getattr(specie, "is_rare_earth_metal", False)
+
+    return [i for i, site in enumerate(structure) if _is_rare_earth(site.specie)]
 
 
 def _get_alkali_alkaline_indices(structure):
