@@ -24,6 +24,7 @@ classifiers = [
 dependencies = [
     "networkx>=2.5",
     "ase",
+    "pymatgen",
     "pyyaml",
     "setuptools>=70,<75",
     "pybind11>=2.9,<3",
